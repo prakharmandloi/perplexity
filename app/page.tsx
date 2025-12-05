@@ -78,12 +78,12 @@ export default function Home() {
       <main className="max-w-4xl mx-auto px-4 py-8">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center min-h-[60vh]">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg hover:shadow-blue-500/50 transition-shadow duration-300 animate-pulse-subtle">
               <Search className="w-8 h-8" />
             </div>
-            <h2 className="text-3xl font-bold mb-3">Ask anything</h2>
-            <p className="text-gray-400 text-center max-w-md">
-              Get instant answers with AI-powered search and reasoning
+            <h2 className="text-4xl font-bold mb-3 bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">Ask anything</h2>
+            <p className="text-gray-400 text-center max-w-md leading-relaxed">
+              Get instant answers powered by Google Gemini 1.5 Flash
             </p>
           </div>
         ) : (
@@ -101,10 +101,10 @@ export default function Home() {
                   </div>
                 )}
                 <div
-                  className={`max-w-[80%] rounded-2xl px-5 py-3 ${
+                  className={`max-w-[80%] rounded-2xl px-5 py-3 transition-all duration-200 ${
                     message.role === 'user'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-800/50 text-gray-100'
+                      ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20 hover:shadow-blue-600/30'
+                      : 'bg-gray-800/50 text-gray-100 hover:bg-gray-800/70'
                   }`}
                 >
                   {message.role === 'assistant' ? (
@@ -114,15 +114,15 @@ export default function Home() {
                       </ReactMarkdown>
                       {message.sources && message.sources.length > 0 && (
                         <div className="mt-4 pt-4 border-t border-gray-700">
-                          <p className="text-sm text-gray-400 mb-2">Sources:</p>
-                          <div className="space-y-1">
+                          <p className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">Sources</p>
+                          <div className="space-y-1.5">
                             {message.sources.map((source, idx) => (
                               <a
                                 key={idx}
                                 href={source}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-sm text-blue-400 hover:text-blue-300 block truncate"
+                                className="text-sm text-blue-400 hover:text-blue-300 block truncate transition-colors duration-150"
                               >
                                 {source}
                               </a>
@@ -143,12 +143,16 @@ export default function Home() {
               </div>
             ))}
             {isLoading && (
-              <div className="flex gap-4">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Sparkles className="w-4 h-4" />
+              <div className="flex gap-4 animate-fade-in">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Sparkles className="w-4 h-4 animate-spin" />
                 </div>
-                <div className="bg-gray-800/50 rounded-2xl px-5 py-3">
-                  <Loader2 className="w-5 h-5 animate-spin text-blue-500" />
+                <div className="bg-gray-800/50 rounded-2xl px-5 py-4 flex items-center gap-2">
+                  <div className="flex gap-1">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                  </div>
                 </div>
               </div>
             )}
@@ -166,12 +170,12 @@ export default function Home() {
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask anything..."
                 disabled={isLoading}
-                className="w-full bg-gray-800/50 border border-gray-700 rounded-2xl px-6 py-4 pr-14 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
+                className="w-full bg-gray-800/50 border border-gray-700 rounded-2xl px-6 py-4 pr-14 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 transition-all duration-200 hover:border-gray-600"
               />
               <button
                 type="submit"
                 disabled={isLoading || !input.trim()}
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:cursor-not-allowed rounded-xl p-3 transition-colors"
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:cursor-not-allowed rounded-xl p-3 transition-all duration-200 hover:shadow-lg hover:shadow-blue-600/50 active:scale-95"
               >
                 <Send className="w-5 h-5" />
               </button>

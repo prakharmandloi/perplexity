@@ -11,8 +11,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Use Google Gemini API with provided key or environment variable
-    const googleApiKey = process.env.GOOGLE_API_KEY || 'AIzaSyDfMTLVWl61nwv2bK3Dj6GFbaY8jW-n9zA';
+    if (!process.env.GOOGLE_API_KEY) {
+      throw new Error('GOOGLE_API_KEY environment variable is not set');
+    }
+
+    const googleApiKey = process.env.GOOGLE_API_KEY;
 
     // Make request to Google Gemini API with correct model name (using v1beta for gemini-1.5-flash)
     const response = await fetch(
