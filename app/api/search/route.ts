@@ -11,59 +11,79 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Here you would integrate with Bhindi's Perplexity agent or OpenRouter
-    // For now, this is a placeholder that returns a structured response
+    // Use Google Gemini API with provided key or environment variable
+    const googleApiKey = process.env.GOOGLE_API_KEY || 'AIzaSyDfMTLVWl61nwv2bK3Dj6GFbaY8jW-n9zA';
     
-    // Example: Call Bhindi API or OpenRouter with Perplexity model
-    const bhindiApiKey = process.env.BHINDI_API_KEY;
-    
-    if (!bhindiApiKey) {
-      return NextResponse.json(
-        { 
-          answer: `I received your query: "${query}"\n\nTo enable full AI-powered search capabilities, please add your BHINDI_API_KEY to the environment variables.\n\nOnce configured, I'll be able to:\n- Search the web in real-time\n- Provide comprehensive answers with sources\n- Reason through complex queries\n- Cite reliable sources`,
-          sources: []
+    // Make request to Google Gemini API
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${googleApiKey}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        { status: 200 }
-      );
-    }
-
-    // Make request to Bhindi API with Perplexity agent
-    const response = await fetch('https://api.bhindi.io/v1/chat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${bhindiApiKey}`,
-      },
-      body: JSON.stringify({
-        messages: [
-          {
-            role: 'user',
-            content: query
-          }
-        ],
-        agents: ['perplexity'], // Use Perplexity agent
-      }),
-    });
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text: `You are a helpful AI assistant similar to Perplexity AI. Provide comprehensive, well-researched answers with relevant context. Format your responses in markdown for better readability.\n\nQuestion: ${query}`
+                }
+              ]
+            }
+          ],
+          generationConfig: {
+            temperature: 0.7,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 2048,
+          },
+          safetySettings: [
+            {
+              category: "HARM_CATEGORY_HARASSMENT",
+              threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            },
+            {
+              category: "HARM_CATEGORY_HATE_SPEECH",
+              threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            },
+            {
+              category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+              threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            },
+            {
+              category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+              threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            }
+          ]
+        }),
+      }
+    );
 
     if (!response.ok) {
-      throw new Error('Failed to get response from Bhindi API');
+      const errorData = await response.json().catch(() => ({}));
+      console.error('Google API error:', errorData);
+      throw new Error(`Google API error: ${response.status} - ${JSON.stringify(errorData)}`);
     }
 
     const data = await response.json();
     
+    // Extract the generated text from Gemini response
+    const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated';
+    
     return NextResponse.json({
-      answer: data.response || data.content || 'No response received',
-      sources: data.sources || [],
+      answer: generatedText,
+      sources: ['Powered by Google Gemini AI'],
     });
 
   } catch (error) {
     console.error('Search API Error:', error);
     return NextResponse.json(
       { 
-        error: 'Failed to process search query',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        answer: `I encountered an error processing your request.\n\n**Error:** ${error instanceof Error ? error.message : 'Unknown error'}\n\nPlease make sure:\n- Your Google API key is valid\n- The Gemini API is enabled in your Google Cloud project\n- You have sufficient quota`,
+        sources: []
       },
-      { status: 500 }
+      { status: 200 }
     );
   }
 }
