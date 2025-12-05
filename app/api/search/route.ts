@@ -14,9 +14,9 @@ export async function POST(request: NextRequest) {
     // Use Google Gemini API with provided key or environment variable
     const googleApiKey = process.env.GOOGLE_API_KEY || 'AIzaSyDfMTLVWl61nwv2bK3Dj6GFbaY8jW-n9zA';
     
-    // Make request to Google Gemini API
+    // Make request to Google Gemini API with correct model name
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${googleApiKey}`,
+      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${googleApiKey}`,
       {
         method: 'POST',
         headers: {
@@ -37,25 +37,7 @@ export async function POST(request: NextRequest) {
             topK: 40,
             topP: 0.95,
             maxOutputTokens: 2048,
-          },
-          safetySettings: [
-            {
-              category: "HARM_CATEGORY_HARASSMENT",
-              threshold: "BLOCK_MEDIUM_AND_ABOVE"
-            },
-            {
-              category: "HARM_CATEGORY_HATE_SPEECH",
-              threshold: "BLOCK_MEDIUM_AND_ABOVE"
-            },
-            {
-              category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-              threshold: "BLOCK_MEDIUM_AND_ABOVE"
-            },
-            {
-              category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-              threshold: "BLOCK_MEDIUM_AND_ABOVE"
-            }
-          ]
+          }
         }),
       }
     );
@@ -73,14 +55,14 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json({
       answer: generatedText,
-      sources: ['Powered by Google Gemini AI'],
+      sources: ['Powered by Google Gemini 1.5 Flash'],
     });
 
   } catch (error) {
     console.error('Search API Error:', error);
     return NextResponse.json(
       { 
-        answer: `I encountered an error processing your request.\n\n**Error:** ${error instanceof Error ? error.message : 'Unknown error'}\n\nPlease make sure:\n- Your Google API key is valid\n- The Gemini API is enabled in your Google Cloud project\n- You have sufficient quota`,
+        answer: `I encountered an error processing your request.\n\n**Error:** ${error instanceof Error ? error.message : 'Unknown error'}\n\nPlease make sure:\n- Your Google API key is valid\n- The Gemini API is enabled in your Google Cloud project\n- You have sufficient quota\n\nTry enabling the API at: https://console.cloud.google.com/apis/library/generativelanguage.googleapis.com`,
         sources: []
       },
       { status: 200 }
