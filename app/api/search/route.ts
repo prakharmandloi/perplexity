@@ -13,10 +13,10 @@ export async function POST(request: NextRequest) {
 
     // Use Google Gemini API with provided key or environment variable
     const googleApiKey = process.env.GOOGLE_API_KEY || 'AIzaSyDfMTLVWl61nwv2bK3Dj6GFbaY8jW-n9zA';
-    
-    // Make request to Google Gemini API with correct model name
+
+    // Make request to Google Gemini API with correct model name (using v1beta for gemini-1.5-flash)
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${googleApiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${googleApiKey}`,
       {
         method: 'POST',
         headers: {
